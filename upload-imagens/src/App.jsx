@@ -1,17 +1,17 @@
 import React, {useState} from "react";
-import PreviewImages from "./components/previewImages";
 import './styles/app.css'
 
+import api from './config/configApi';
+
 import { BiImageAdd } from 'react-icons/bi';
+import { AiOutlineDelete } from 'react-icons/ai';
 
 function App() {
   const [images, setImages] = useState([]);
 
   const uploadImages = () => {
 
-  };  
-
-  const [droppedFiles, setDroppedFiles] = useState([]);
+  };    
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -19,11 +19,28 @@ function App() {
   };
 
   const handleDrop = (e) => {
-    e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    setDroppedFiles(files);
+    e.preventDefault(); 
+    const newFiles = Array.from(e.dataTransfer.files);
+    const existingFiles = Array.from(images);          
+    const combinedFiles = [...existingFiles, ...newFiles];
+
+    setImages(combinedFiles);
+  };
+
+  const handleFileChange = (e) => {       
+    const existingFiles = Array.from(images);      
+    const newFiles = Array.from(e.target.files);    
+    const combinedFiles = [...existingFiles, ...newFiles];
+
+    setImages(combinedFiles);
   };
   
+  const removeImage = (index) => {
+    const newImages = [...images];
+    newImages.splice(index, 1);
+    setImages(newImages);
+  };
+
   return (
     <div className="App">      
       
@@ -38,26 +55,21 @@ function App() {
           type="file"
           multiple
           id="image"
-          onChange={(e) => setImages(e.target.files)}
+          onChange={handleFileChange}
           accept=".jpg, .jpeg, .png" 
         />
-      </div>
+      </div>                          
 
-      <input
-        type="file"
-        multiple
-        onChange={(e) => setImages(e.target.files)}
-        accept=".jpg, .jpeg, .png" 
-      />
-      
-      <button onClick={uploadImages}>Upload</button>         
-
-      <ul>
-        {droppedFiles.map((file, index) => (
-          <li key={index}>{file.name}</li>
+      <div className="selected-images">
+        {images.map((file, index) => (
+          <div className="item-selected-images">            
+            <span key={index}>{file.name}</span>
+            <a key={index} href="#" onClick={() => removeImage(index)}><AiOutlineDelete/></a>
+          </div>
         ))}
-      </ul>   
+      </div>   
       
+      <button onClick={uploadImages}>Upload</button> 
     </div>
   );
 }
